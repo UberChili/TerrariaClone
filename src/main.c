@@ -10,7 +10,14 @@ typedef struct {
     bool canJump;
 } Player;
 
-void updatePlayer(Player *player, float delta) {
+typedef struct {
+    Rectangle rect;
+    int blocking;
+    Color color;
+} EnvItem;
+
+/* void updatePlayer(Player *player, float delta) { */
+void updatePlayer(Player *player, EnvItem envItems[], size_t envItemsLen, float delta) {
     if (IsKeyDown(KEY_LEFT)) player->position.x -= PLAYER_HDR_SPD * delta;
     if (IsKeyDown(KEY_RIGHT)) player->position.x += PLAYER_HDR_SPD * delta;
 
@@ -19,16 +26,26 @@ void updatePlayer(Player *player, float delta) {
         player->canJump = false;
     }
 
+    /* for (size_t i = 0; i < envItemsLen; i++ ) { */
+    /*     if (CheckCollisionRecs(envItems[i].rect, )) */
+    /* } */
+
     /* player->position.y += PLAYER_HDR_SPD * delta; */
 }
 
 int main(void) {
     const int screenWidth = 1200;
     const int screenHeight = 800;
+
     InitWindow(screenWidth, screenHeight, "Raylib Window");
 
-    /* Rectangle player = {50, 50, 100, 100}; */
-    Player player = {{50, 50}, 1, true};
+    EnvItem envitems[] = {
+    {{200, screenHeight - 100, screenWidth - 400, 100}, 0, LIGHTGRAY}, // surface
+    };
+
+    size_t EnvItemsLen = sizeof (envitems) / sizeof(envitems[0]);
+
+    Player player = {{500, screenHeight - 100}, 2, false};
 
     SetTargetFPS(60);
     while (!WindowShouldClose()) {
@@ -39,13 +56,16 @@ int main(void) {
         BeginDrawing();
         ClearBackground(SKYBLUE);
 
+        // Draw environment items
+        for (size_t i = 0; i < EnvItemsLen; i++) {
+            DrawRectangleRec(envitems[i].rect, envitems[i].color);
+        }
+
         // Draw Rectangle first
         Rectangle playerRect = {player.position.x - 20, player.position.y - 40, 40.0f, 40.0f};
-        Rectangle floor = {200, screenHeight - 100, screenWidth - 400, 100};
 
         updatePlayer(&player, deltaTime);
-        DrawRectangleRec(playerRect, DARKBROWN);
-        DrawRectangleRec(floor, BLACK);
+        DrawRectangleRec(playerRect, YELLOW);
 
         EndDrawing();
     }
