@@ -10,24 +10,29 @@ UNAME_S := $(shell uname -s)
 
 ifeq ($(UNAME_S), Darwin)
     PLATFORM = macos
-    LIBS = -framework OpenGL -framework Cocoa -framework IOKit -framework CoreAudio -framework CoreVideo
+    CFLAGS = -Ilib/macos -Wall -O2
+    LDFLAGS = lib/macos/libraylib.a \
+              -framework OpenGL -framework Cocoa -framework IOKit -framework CoreAudio -framework CoreVideo
 else
     PLATFORM = linux
-    LIBS = -lGL -lm -lpthread -ldl -lrt -lX11
+    CFLAGS = -Wall -O2
+    LDFLAGS = -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
 endif
 
-# Compiler and flags
+# Compiler
 CC = gcc
-CFLAGS = -Ilib/$(PLATFORM) -Wall -O2
 
 # Default target
 all: $(BIN)
 
 $(BIN): $(SRC)
 	@mkdir -p bin
-	$(CC) $(CFLAGS) $(SRC) -o $(BIN) lib/$(PLATFORM)/libraylib.a $(LIBS)
+	$(CC) $(CFLAGS) $(SRC) -o $(BIN) $(LDFLAGS)
 
 clean:
 	rm -f $(BIN)
 
-.PHONY: all clean
+print-platform:
+	@echo Detected platform: $(PLATFORM)
+
+.PHONY: all clean print-platform
