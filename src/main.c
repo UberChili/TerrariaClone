@@ -1,6 +1,7 @@
 #include "../lib/raylib.h"
 #include <stdio.h>
 
+#define G 400
 #define PLAYER_HDR_SPD 200.0f
 #define PLAYER_JUMP_SPD 350.0f
 
@@ -16,7 +17,6 @@ typedef struct {
     Color color;
 } EnvItem;
 
-/* void updatePlayer(Player *player, float delta) { */
 void updatePlayer(Player *player, EnvItem envItems[], size_t envItemsLen,
                   float delta) {
     if (IsKeyDown(KEY_LEFT))
@@ -25,22 +25,55 @@ void updatePlayer(Player *player, EnvItem envItems[], size_t envItemsLen,
         player->position.x += PLAYER_HDR_SPD * delta;
 
     if (IsKeyDown(KEY_SPACE) && player->canJump) {
-        printf("Jump key pressed!\n");
-        player->speed = -PLAYER_JUMP_SPD * delta;
+        player->speed = -PLAYER_JUMP_SPD;
         player->canJump = false;
     }
 
+    /* bool hitObstacle = false; */
+    /* // Check collisions against other env Items (rectangles) */
+    /* for (size_t i = 0; i < envItemsLen; i++) { */
+    /*     EnvItem *ei = envItems + i; */
+    /*     Vector2 *p = &(player->position); */
+    /*     if (ei->blocking && ei->rect.x <= p->x && */
+    /*         ei->rect.x + ei->rect.width >= p->x && ei->rect.y >= p->y && */
+    /*         ei->rect.y <= p->y + player->speed * delta) { */
+    /*         hitObstacle = true; */
+    /*         player->speed = 0.0f; */
+    /*         p->y = ei->rect.y; */
+    /*         break; */
+    /*     } */
+    /*     /\* if (CheckCollisionRecs( *\/ */
+    /*     /\*         envItems[i].rect, *\/ */
+    /*     /\*         (Rectangle){player->position.x, player->position.y, *\/
+     */
+    /*     /\*                     playerRect->width, playerRect->height})) {
+     * *\/ */
+    /*     /\*     printf("There's a collision!\n"); *\/ */
+    /*     /\*     playerRect->y--; *\/ */
+    /*     /\*     player->canJump = true; *\/ */
+    /*     /\* } *\/ */
+    /* } */
+
+    bool hitObstacle = false;
+    Rectangle playerRect = {player->position.x - 20, player->position.y - 40,
+                            40.0f, 40.0f};
     for (size_t i = 0; i < envItemsLen; i++) {
-        if (CheckCollisionRecs(
-                envItems[i].rect,
-                (Rectangle){player->position.x, player->position.y})) {
-            printf("Some rectangles are touching!\n");
-            player->position.y = player->position.y - 3;
-            player->canJump = true;
+        EnvItem *ei = envItems + i;
+        if (ei->blocking && CheckCollisionRecs(playerRect, ei->rect)) {
+            hitObstacle = true;
+            player->speed = 0.0f;
+            player->position.y = ei->rect.y;
+            break;
         }
     }
 
-    player->position.y += PLAYER_HDR_SPD * delta;
+    if (!hitObstacle) {
+        player->position.y += player->speed * delta;
+        player->speed += G * delta;
+        player->canJump = false;
+    } else {
+        player->canJump = true;
+    }
 }
 
 int main(void) {
@@ -49,15 +82,18 @@ int main(void) {
 
     InitWindow(screenWidth, screenHeight, "Raylib Window");
 
+    Player player = {0};
+    player.position = (Vector2){400, 280};
+    player.speed = 0;
+    player.canJump = false;
+
     EnvItem envitems[] = {
         {{200, screenHeight - 100, screenWidth - 400, 100},
-         0,
+         1,
          LIGHTGRAY}, // surface
     };
 
     size_t EnvItemsLen = sizeof(envitems) / sizeof(envitems[0]);
-
-    Player player = {{500, screenHeight - 100}, 2, false};
 
     SetTargetFPS(60);
     while (!WindowShouldClose()) {
