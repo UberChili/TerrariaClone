@@ -1,9 +1,9 @@
 #include "../lib/raylib.h"
 #include <stdio.h>
 
-#define G 400
-#define PLAYER_HDR_SPD 200.0f
-#define PLAYER_JUMP_SPD 350.0f
+#define G 1400
+#define PLAYER_HDR_SPD 400.0f
+#define PLAYER_JUMP_SPD 400.0f
 
 typedef struct {
     Vector2 position;
@@ -28,31 +28,6 @@ void updatePlayer(Player *player, EnvItem envItems[], size_t envItemsLen,
         player->speed = -PLAYER_JUMP_SPD;
         player->canJump = false;
     }
-
-    /* bool hitObstacle = false; */
-    /* // Check collisions against other env Items (rectangles) */
-    /* for (size_t i = 0; i < envItemsLen; i++) { */
-    /*     EnvItem *ei = envItems + i; */
-    /*     Vector2 *p = &(player->position); */
-    /*     if (ei->blocking && ei->rect.x <= p->x && */
-    /*         ei->rect.x + ei->rect.width >= p->x && ei->rect.y >= p->y && */
-    /*         ei->rect.y <= p->y + player->speed * delta) { */
-    /*         hitObstacle = true; */
-    /*         player->speed = 0.0f; */
-    /*         p->y = ei->rect.y; */
-    /*         break; */
-    /*     } */
-    /*     /\* if (CheckCollisionRecs( *\/ */
-    /*     /\*         envItems[i].rect, *\/ */
-    /*     /\*         (Rectangle){player->position.x, player->position.y, *\/
-     */
-    /*     /\*                     playerRect->width, playerRect->height})) {
-     * *\/ */
-    /*     /\*     printf("There's a collision!\n"); *\/ */
-    /*     /\*     playerRect->y--; *\/ */
-    /*     /\*     player->canJump = true; *\/ */
-    /*     /\* } *\/ */
-    /* } */
 
     bool hitObstacle = false;
     Rectangle playerRect = {player->position.x - 20, player->position.y - 40,
@@ -83,7 +58,7 @@ int main(void) {
     InitWindow(screenWidth, screenHeight, "Raylib Window");
 
     Player player = {0};
-    player.position = (Vector2){400, 280};
+    player.position = (Vector2){400, 480};
     player.speed = 0;
     player.canJump = false;
 
@@ -112,9 +87,6 @@ int main(void) {
         // Draw Rectangle first
         Rectangle playerRect = {player.position.x - 20, player.position.y - 40,
                                 40.0f, 40.0f};
-        /* Rectangle playerRect = {player.position.x, player.position.y, 40.0f,
-         */
-        /*                         40.0f}; */
 
         updatePlayer(&player, envitems, EnvItemsLen, deltaTime);
         DrawRectangleRec(playerRect, YELLOW);
